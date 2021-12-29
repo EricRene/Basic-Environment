@@ -78,7 +78,7 @@ resource "aws_vpc" "my_vpc" {
   enable_dns_hostnames = "false"
 
   tags = {
-    Name = "Task 5 VPC"
+    Name = "Task 4-1 VPC"
   }
 }
 
@@ -91,7 +91,7 @@ resource "aws_internet_gateway" "my_igw" {
   vpc_id = aws_vpc.my_vpc.id
 
   tags = {
-    Name = "Task 5 Internet Gateway"
+    Name = "Task 4-1 Internet Gateway"
   }
 }
 
@@ -201,7 +201,7 @@ resource "aws_nat_gateway" "nat_gateway" {
   subnet_id     = aws_subnet.public_subnets[0].id
 
   tags = {
-    Name = "Task 5 NAT Gateway"
+    Name = "Task 4-1 NAT Gateway"
   }
 
   # To ensure proper ordering, it is recommended to add an explicit dependency
@@ -226,7 +226,7 @@ resource "aws_eip" "nat_gw_eip" {
 //////////////////////////////////////////////
 
 resource "aws_security_group" "alb_sg" {
-  name        = "ALB-SG"
+  name        = "Task 4-1 ALB-SG"
   description = "Application load balancer security group"
   vpc_id      = aws_vpc.my_vpc.id
 
