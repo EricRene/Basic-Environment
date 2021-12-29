@@ -34,8 +34,6 @@ variable "region" {}
 
 variable "vpc_cidr" {}
 
-variable "key_name" {}
-
 variable "public_subnet_names" {
   type = list(string)
   default = [
@@ -52,13 +50,13 @@ variable "web_server_subnet_names" {
   ]
 }
 
-# variable "database_subnet_names" {
-#   type = list(string)
-#   default = [
-#     "Database Subnet 1",
-#     "Database Subnet 2"
-#   ]
-# }
+variable "database_subnet_names" {
+  type = list(string)
+  default = [
+    "Database Subnet 1",
+    "Database Subnet 2"
+  ]
+}
 
 # variable "public_subnet_1_cidr" {}
 
@@ -157,6 +155,17 @@ resource "aws_subnet"  "web_server_subnets" {
   tags = tomap({ "Name" = "${var.web_server_subnet_names[count.index]}" })
 }
 
+resource "aws_subnet"  "database_subnets" {
+  count                   = 2
+
+  cidr_block              = "192.168.${4+count.index}.0/24"
+  vpc_id                  = aws_vpc.my_vpc.id
+  map_public_ip_on_launch = "false"
+  availability_zone       = data.aws_availability_zones.available.names[count.index]
+
+  tags = tomap({ "Name" = "${var.database_subnet_names[count.index]}" })
+}
+
 ////////////////////////////////////////////////////////
 // ------------ Route Table Association ------------ //
 //////////////////////////////////////////////////////
@@ -173,6 +182,13 @@ resource "aws_route_table_association" "web_server_route_table_association" {
   count = 2
 
   subnet_id      = "${aws_subnet.web_server_subnets.*.id[count.index]}"
+  route_table_id = aws_route_table.private_route_table.id
+}
+
+resource "aws_route_table_association" "database_route_table_association" {
+  count = 2
+
+  subnet_id      = "${aws_subnet.database_subnets.*.id[count.index]}"
   route_table_id = aws_route_table.private_route_table.id
 }
 
@@ -247,20 +263,20 @@ resource "aws_security_group_rule" "web_server_sg_rule" {
   source_security_group_id = aws_security_group.alb_sg.id
 }
 
-# resource "aws_security_group" "database_sg" {
-#   name        = "Database-SG"
-#   description = "Database security group"
-#   vpc_id      = aws_vpc.my_vpc.id
-# }
-#
-# resource "aws_security_group_rule" "Database_sg_rule" {
-#   type                     = "ingress"
-#   from_port                = 3306
-#   to_port                  = 3306
-#   protocol                 = "tcp"
-#   security_group_id        = aws_security_group.database_sg.id
-#   source_security_group_id = aws_security_group.web_server_sg.id
-# }
+resource "aws_security_group" "database_sg" {
+  name        = "Database-SG"
+  description = "Database security group"
+  vpc_id      = aws_vpc.my_vpc.id
+}
+
+resource "aws_security_group_rule" "Database_sg_rule" {
+  type                     = "ingress"
+  from_port                = 3306
+  to_port                  = 3306
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.database_sg.id
+  source_security_group_id = aws_security_group.web_server_sg.id
+}
 
 
 //////////////////////////////////////////////////////
