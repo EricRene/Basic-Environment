@@ -252,6 +252,15 @@ resource "aws_security_group" "web_server_sg" {
   name        = "Web-Server-SG"
   description = "Web Server security group"
   vpc_id      = aws_vpc.my_vpc.id
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
 }
 
 resource "aws_security_group_rule" "web_server_sg_rule" {
@@ -267,6 +276,14 @@ resource "aws_security_group" "database_sg" {
   name        = "Database-SG"
   description = "Database security group"
   vpc_id      = aws_vpc.my_vpc.id
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
 }
 
 resource "aws_security_group_rule" "Database_sg_rule" {
@@ -309,7 +326,7 @@ resource "aws_lb_listener" "front_end" {
 }
 
 resource "aws_lb_target_group" "my_target_group" {
-  name     = "Task-5-Target-Group"
+  name     = "Task-4-1-Target-Group"
   port     = 80
   protocol = "HTTP"
   vpc_id   = aws_vpc.my_vpc.id
